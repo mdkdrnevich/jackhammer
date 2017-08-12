@@ -1,5 +1,5 @@
 /*
-This code is directly adapted from the New York Times' Crowbar utility - https://github.com/NYTimes/svg-crowbar
+This code is directly adapted from the New York Times' Crowbar utility - https://github.com/NYTimes/svg-crowbar.
 
 Copyright (c) 2013 The New York Times
 
@@ -99,4 +99,35 @@ var i = allElements.length;
 while (i--){
   explicitlySetStyle(allElements[i]);
 }
+};
+
+// My main extension of the New York Times tool
+
+jackhammer.makeBlob = function(element) {
+  var source = jackhammer.getSource(element).source;
+  return new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+};
+ 
+jackhammer.makeCanvas = function(blob) {
+  var canv = document.createElement("canvas");
+  canv.setAttribute("id", "_jackhammer_hidden_canvas_")
+  canv.setAttribute("style", "display: none;")
+  var url = window.URL.createObjectURL(blob);
+  // Requires canvg
+  canvg("_jackhammer_hidden_canvas_", url);
+  return canv
+};
+  
+jackhammer.saveCanvasAs = function(canvasElement, filename) {
+  var link = document.createElement("a");
+  link.setAttribute("style", "display: none;");
+  link.href = canvasElement.toDataURL("image/png");
+  link.download = filename;
+  link.click();
+};
+
+jackhammer.saveSvgAs = function(svgElement, filename) {
+  var blob = jackhammer.makeBlob(svgElement);
+  var canv = jackhammer.makeCanvas(blob);
+  jackhammer.saveCanvasAs(canv, filename);
 };
